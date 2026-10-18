@@ -53,10 +53,11 @@
         # fails with `tcc: error: file 'libtcc1.a' not found`.
         buildPhase = ''
           runHook preBuild
-          ./configure --prefix=$out --cc=$CC \
-            --sysincludepaths='{B}/include:'"$out"'/include:${pkgs.glibc.dev}/include' \
-            --crtprefix='"$out"'/lib/tcc:${pkgs.glibc}/lib' \
-            --libpaths='${pkgs.glibc}/lib'
+          prefix="$out"
+          ./configure --prefix="$prefix" --cc=$CC \
+            --sysincludepaths="{B}/include:$prefix/include:${pkgs.glibc.dev}/include" \
+            --crtprefix="$prefix/lib/tcc:${pkgs.glibc}/lib" \
+            --libpaths="${pkgs.glibc}/lib"
           make -j1            # single job, as everywhere in this guide
           runHook postBuild
         '';
