@@ -45,7 +45,11 @@
       # works, as long as it matches the compiler's target.
       myBintools = nativePkgs.wrapBintoolsWith {
         bintools = nativePkgs.binutils-unwrapped;
-        libc = null;
+        # MUST match the `libc` passed to wrapCCWith below: the cc-wrapper
+        # asserts `libc_bin == bintools.libc_bin` (pkgs/build-support/cc-wrapper/
+        # default.nix).  Mixing `null` here with a real libc there is an
+        # evaluation error.
+        libc = nativePkgs.glibc;
       };
 
       # =======================================================================
@@ -61,8 +65,13 @@
       };
 
       stdenv = nativePkgs.stdenv.override {
+        buildPlatform  = nativePkgs.stdenv.buildPlatform;
+        hostPlatform   = nativePkgs.stdenv.hostPlatform;
+        targetPlatform = nativePkgs.stdenv.targetPlatform;
         cc = myCC;
         hasCC = true;
+        extraBuildInputs = [ ];
+        overrides = _: _: { };
         allowedRequisites = null;
       };
 
