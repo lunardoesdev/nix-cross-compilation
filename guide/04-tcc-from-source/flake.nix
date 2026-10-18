@@ -46,12 +46,17 @@
         # TCC's placeholder for its own build directory, `{R}` for its install
         # root.  Pointing --crtprefix/--libpaths at nixpkgs' glibc is what lets
         # the compiler it builds find crt1.o and libc.
+        #
+        # `{R}/lib/tcc` MUST come first in --crtprefix: that is where TCC's own
+        # runtime library `libtcc1.a` is installed, and TCC looks for it in the
+        # crt search path.  Without it, compiling is fine (`tcc -c`) but linking
+        # fails with `tcc: error: file 'libtcc1.a' not found`.
         buildPhase = ''
           runHook preBuild
           ./configure --prefix=$out --cc=$CC \
             --sysincludepaths='{B}/include:{R}/include:${pkgs.glibc.dev}/include' \
-            --crtprefix=${pkgs.glibc}/lib \
-            --libpaths=${pkgs.glibc}/lib
+            --crtprefix='{R}/lib/tcc:${pkgs.glibc}/lib' \
+            --libpaths='${pkgs.glibc}/lib'
           make -j1            # single job, as everywhere in this guide
           runHook postBuild
         '';
