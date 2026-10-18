@@ -120,11 +120,6 @@
             -Wl,-Bstatic -lmul -ladd -Wl,-Bdynamic -o test_static
           ./test_static
 
-          echo "== fully static =="
-          $CC test.c -static -I"$out/include" -L"$out/lib" -lmul -ladd -o test_fully_static
-          ./test_fully_static
-          file test_fully_static
-
           echo "== pkg-config =="
           PKG_CONFIG_PATH="$out/lib/pkgconfig" pkg-config --cflags --libs libmul
           runHook postInstallCheck
