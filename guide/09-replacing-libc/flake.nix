@@ -1,89 +1,133 @@
 {
-  description = "Chapter 09 — replacing libc: newlib, newlib-nano, picolibc, freestanding, or your own";
+  description = "Chapter 09 — replacing libc: hosted (glibc) vs freestanding, and the embedded libc family";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/f20cd90e28fe0403873f473b29e42662cd86e8c4";
 
   outputs = { self, nixpkgs }:
     let
-      localSystem = "x86_64-linux";
-      nativePkgs = import nixpkgs { inherit localSystem; };
-      buildPlatform = nixpkgs.lib.systems.elaborate localSystem;
+      system = "x86_64-linux";
+      pkgs = import nixpkgs { inherit system; };
 
       # =======================================================================
-      # libc is one field in `crossSystem`
+      # What libc is
       # =======================================================================
-      # nixpkgs maps `crossSystem.libc` to a package that must provide:
+      # `libc` is just a package that must provide:
       #
       #   $out/include/   the headers
       #   $out/lib/       crt1.o, libc.a (and/or libc.so)
       #
-      # and wires it into the compiler wrapper's flag files:
+      # The compiler wrapper turns it into its flag files:
       #
       #   libc-cflags       -> -idirafter <libc>/<target>/include
       #   libc-crt1-cflags  -> -B <libc>/<target>/lib
       #   libc-ldflags      -> linker flags for the C library
       #
-      # Changing the string changes which package is used.  `null` means
-      # "freestanding": no libc flags at all.
-      mkVariant = crossSystem:
+      # `libc = null` means "freestanding": none of those flags are added.
+      #
+      # NOTE ON COST.  On a CROSS target, `crossSystem.libc` selects which libc
+      # the gcc cross compiler is built against.  Changing it therefore makes
+      # Nix build a *matching gcc* (and the libc) from source the first time,
+      # which is slow.  That is why this chapter demonstrates the substitution
+      # on the NATIVE toolchain, where it is cheap, and only tabulates the
+      # embedded options.  (See chapter 21 for picking targets that have cached
+      # toolchains.)
+
+      # =======================================================================
+      # 1. Two native toolchains that differ only in libc.
+      # =======================================================================
+      mkToolchain = libc:
         let
-          targetPlatform = nixpkgs.lib.systems.elaborate crossSystem;
-          targetPkgs = import nixpkgs { inherit localSystem crossSystem; };
-          stdenv = nativePkgs.stdenv.override {
-            inherit buildPlatform;
-            hostPlatform = targetPlatform;
-            targetPlatform = targetPlatform;
-            cc = targetPkgs.buildPackages.gcc;   # already wrapped with this libc
+          # binutils and cc MUST agree on libc (cc-wrapper asserts it).
+          bintools = pkgs.wrapBintoolsWith {
+            bintools = pkgs.binutils-unwrapped;
+            inherit libc;
+          };
+          cc = pkgs.wrapCCWith {
+            cc = pkgs.gcc-unwrapped;
+            bintools = bintools;
+            inherit libc;
+          };
+          stdenv = pkgs.stdenv.override {
+            buildPlatform  = pkgs.stdenv.buildPlatform;
+            hostPlatform   = pkgs.stdenv.hostPlatform;
+            targetPlatform = pkgs.stdenv.targetPlatform;
+            inherit cc;
             hasCC = true;
             extraBuildInputs = [ ];
             overrides = _: _: { };
             allowedRequisites = null;
           };
-          libadd = stdenv.mkDerivation {
-            pname = "libadd";
-            version = "1.0.0";
-            src = ./src;
-            dontConfigure = true;
-            enableParallelBuilding = false;
-            buildPhase = ''
-              runHook preBuild
-              $CC -Os -c add.c -o add.o
-              $AR rcs libadd.a add.o
-              runHook postBuild
-            '';
-            installPhase = ''
-              runHook preInstall
-              mkdir -p $out/lib $out/include
-              cp libadd.a $out/lib/
-              cp add.h    $out/include/
-              runHook postInstall
-            '';
-          };
         in
-        {
-          inherit stdenv libadd targetPkgs;
-          cc = targetPkgs.buildPackages.gcc;
-        };
+        { inherit stdenv cc bintools libc; };
 
-      newlib       = mkVariant { config = "arm-none-eabi"; libc = "newlib"; };
-      newlibNano   = mkVariant { config = "arm-none-eabi"; libc = "newlib-nano"; };
-      picolibc     = mkVariant { config = "arm-none-eabi"; libc = "picolibc"; };
-      freestanding = mkVariant { config = "arm-none-eabi"; libc = null; };
+      # glibc: a normal hosted Linux target (printf, files, sockets, ...).
+      hosted = mkToolchain pkgs.glibc;
+
+      # null: freestanding -- no C library at all.  Only pure computation works.
+      freestanding = mkToolchain null;
+
+      # =======================================================================
+      # 2. A hosted program (needs libc: it calls printf).
+      # =======================================================================
+      hello = hosted.stdenv.mkDerivation {
+        pname = "hello-hosted";
+        version = "1.0.0";
+        src = ./src;
+        dontConfigure = true;
+        enableParallelBuilding = false;
+        buildPhase = ''
+          runHook preBuild
+          $CC add.c main.c -o hello
+          runHook postBuild
+        '';
+        installPhase = ''
+          runHook preInstall
+          mkdir -p $out/bin
+          cp hello $out/bin/
+          runHook postInstall
+        '';
+        doCheck = true;
+        checkPhase = ''
+          runHook preCheck
+          output="$(./hello)"; echo "$output"
+          echo "$output" | grep -q 'add(6, 7) = 13'
+          runHook postCheck
+        '';
+      };
+
+      # =======================================================================
+      # 3. A freestanding object (cannot call libc at all).
+      # =======================================================================
+      libadd = freestanding.stdenv.mkDerivation {
+        pname = "libadd-freestanding";
+        version = "1.0.0";
+        src = ./src;
+        dontConfigure = true;
+        enableParallelBuilding = false;
+        buildPhase = ''
+          runHook preBuild
+          $CC -Os -c add.c -o add.o
+          $AR rcs libadd.a add.o
+          runHook postBuild
+        '';
+        installPhase = ''
+          runHook preInstall
+          mkdir -p $out/lib $out/include
+          cp libadd.a $out/lib/
+          cp add.h    $out/include/
+          runHook postInstall
+        '';
+      };
     in
     {
-      packages.${localSystem} = {
-        newlib-libadd       = newlib.libadd;
-        newlib-nano-libadd  = newlibNano.libadd;
-        picolibc-libadd     = picolibc.libadd;
-        freestanding-libadd = freestanding.libadd;
-        default = newlib.libadd;
+      packages.${system} = {
+        inherit hello libadd;
+        default = hello;
       };
 
-      # Inspect the wrappers, e.g.:
-      #   nix eval --raw .#variants.picolibc.cc
-      #   cat "$(nix eval --raw .#variants.picolibc.cc)/nix-support/libc-cflags"
-      variants = {
-        inherit newlib newlibNano picolibc freestanding;
-      };
+      # Compare the two wrappers' flag files:
+      #   cat "$(nix eval --raw .#toolchains.hosted.cc)/nix-support/libc-cflags"
+      #   cat "$(nix eval --raw .#toolchains.freestanding.cc)/nix-support/libc-cflags"
+      toolchains = { inherit hosted freestanding; };
     };
 }
