@@ -47,17 +47,21 @@
         # `$out` (which --prefix already sets) rather than `{R}`: only `{B}` is
         # substituted by TCC, so `{R}` would expand to nothing at runtime.
         #
-        # `$out/lib/tcc` MUST come first in --crtprefix: that is where TCC's own
-        # runtime library `libtcc1.a` is installed, and TCC looks for it in the
-        # crt search path.  Without it, compiling is fine (`tcc -c`) but linking
-        # fails with `tcc: error: file 'libtcc1.a' not found`.
+        # `$out/lib/tcc` MUST come first in --libpaths: `tcc_add_support()`
+        # searches the *library* path for its own runtime `libtcc1.a`
+        # (`tcc.c` prints it as `library_paths[0]/libtcc1.a`).  Without it,
+        # compiling is fine (`tcc -c`) but linking fails with
+        # `tcc: error: file 'libtcc1.a' not found`.
+        #
+        # --crtprefix is separate and is where crt1.o/crti.o are looked up; it
+        # gets nixpkgs' glibc.
         buildPhase = ''
           runHook preBuild
           prefix="$out"
           ./configure --prefix="$prefix" --cc=$CC \
             --sysincludepaths="{B}/include:$prefix/include:${pkgs.glibc.dev}/include" \
             --crtprefix="$prefix/lib/tcc:${pkgs.glibc}/lib" \
-            --libpaths="${pkgs.glibc}/lib"
+            --libpaths="$prefix/lib/tcc:${pkgs.glibc}/lib"
           make -j1            # single job, as everywhere in this guide
           runHook postBuild
         '';
