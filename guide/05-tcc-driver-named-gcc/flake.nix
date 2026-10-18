@@ -57,6 +57,14 @@
       tccAsGcc = (pkgs.runCommand "tcc-as-gcc" { } ''
         mkdir -p $out/bin
         ln -s ${tcc}/bin/tcc $out/bin/gcc
+
+        # The cc-wrapper always adds `-B${cc}/lib` to the compiler flags because
+        # for gcc that is where libgcc/crt live.  TCC, however, reads `-Bdir` as
+        # "my private dir": it then looks for its own headers and `libtcc1.a` in
+        # `dir/`.  So point `$out/lib` at TCC's real private dir, and the injected
+        # `-B` becomes correct instead of breaking the include search (otherwise
+        # you get `error: include file 'stddef.h' not found`).
+        ln -s ${tcc}/lib/tcc $out/lib
       '').overrideAttrs (old: {
         passthru = (old.passthru or { }) // {
           hardeningUnsupportedFlagsByTargetPlatform = _: [
