@@ -1,0 +1,4 @@
+# Nix build outputs and local junk.
+result
+result-*
+.direnv
