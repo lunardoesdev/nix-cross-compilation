@@ -1,3 +1,12 @@
+> **Superseded by the guide.** This directory is the original draft. Its content
+> has been refactored into the interlinked chapters under [`guide/`](../guide/):
+> the embedded toolchain and the two libraries are
+> [chapter 01](../guide/01-what-is-cross-compilation/README.md) and
+> [chapter 02](../guide/02-first-cross-flake/README.md), the `$CC` mechanism is
+> [chapter 03](../guide/03-the-invisible-chain/README.md), and the TCC variants
+> are [chapters 04–10](../guide/04-tcc-from-source/README.md). Start at the
+> [guide index](../guide/README.md).
+
 # nix-embed-crosscompilation
 
 Two tiny C libraries cross-compiled for an embedded target with Nix — plus

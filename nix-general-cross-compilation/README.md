@@ -1,3 +1,12 @@
+> **Superseded by the guide.** This directory is the original draft. Its content
+> has been refactored into the interlinked chapters under [`guide/`](../guide/):
+> the target table and generic builders are
+> [chapters 11–13](../guide/11-one-recipe-many-targets/README.md), the four
+> headline targets are [chapters 14–17](../guide/14-target-linux/README.md), and
+> the portable (FHS) bundles and library packages are
+> [chapters 18–20](../guide/18-fhs-portable-sharun-uruntime/README.md). Start at
+> the [guide index](../guide/README.md).
+
 # Nix general cross-compilation + portable (FHS) Linux bundles
 
 A small, heavily commented demonstration of **cross-compiling real C code with
