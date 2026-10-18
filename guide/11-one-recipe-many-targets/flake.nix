@@ -87,9 +87,7 @@
               runHook preInstall
               mkdir -p "$out/lib" "$out/include"
               cp "lib${libName}.a" "$out/lib/"
-            '' + lib.concatMapStringsSep "\n"
-              (h: ''  cp "${h}" "$out/include/"'')
-              headers + ''
+              ${lib.concatMapStringsSep "\n" (h: ''cp "${h}" "$out/include/"'') headers}
               runHook postInstall
             '';
 
