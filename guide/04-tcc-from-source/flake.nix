@@ -43,19 +43,19 @@
 
         # TCC has no /usr/include to fall back on, so it must be told where the
         # C library headers, the start files and the libraries are.  `{B}` is
-        # TCC's placeholder for its own build directory, `{R}` for its install
-        # root.  Pointing --crtprefix/--libpaths at nixpkgs' glibc is what lets
-        # the compiler it builds find crt1.o and libc.
+        # TCC's placeholder for its own build directory.  We use the literal
+        # `$out` (which --prefix already sets) rather than `{R}`: only `{B}` is
+        # substituted by TCC, so `{R}` would expand to nothing at runtime.
         #
-        # `{R}/lib/tcc` MUST come first in --crtprefix: that is where TCC's own
+        # `$out/lib/tcc` MUST come first in --crtprefix: that is where TCC's own
         # runtime library `libtcc1.a` is installed, and TCC looks for it in the
         # crt search path.  Without it, compiling is fine (`tcc -c`) but linking
         # fails with `tcc: error: file 'libtcc1.a' not found`.
         buildPhase = ''
           runHook preBuild
           ./configure --prefix=$out --cc=$CC \
-            --sysincludepaths='{B}/include:{R}/include:${pkgs.glibc.dev}/include' \
-            --crtprefix='{R}/lib/tcc:${pkgs.glibc}/lib' \
+            --sysincludepaths='{B}/include:'"$out"'/include:${pkgs.glibc.dev}/include' \
+            --crtprefix='"$out"'/lib/tcc:${pkgs.glibc}/lib' \
             --libpaths='${pkgs.glibc}/lib'
           make -j1            # single job, as everywhere in this guide
           runHook postBuild
