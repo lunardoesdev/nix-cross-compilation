@@ -90,9 +90,9 @@
             -exec patchelf --set-rpath '$ORIGIN' {} \;
 
           # A relocatable pkg-config file for each library.  The heredoc is
-          # QUOTED ('EOF') so the shell writes `${pcfiledir}` etc. verbatim for
-          # pkg-config to expand at use time; Nix's `''${` escape keeps Nix
-          # from interpolating them too.
+          # QUOTED ('EOF') so the shell writes pcfiledir/prefix/libdir verbatim
+          # for pkg-config to expand at use time; Nix's escape keeps Nix from
+          # interpolating them too.
           mkdir -p "$out/lib/pkgconfig"
           cat > "$out/lib/pkgconfig/libadd.pc" <<'EOF'
           prefix=''${pcfiledir}/../..
