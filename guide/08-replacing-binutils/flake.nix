@@ -11,9 +11,6 @@
         libc = "newlib";
       };
 
-      buildPlatform  = nixpkgs.lib.systems.elaborate localSystem;
-      targetPlatform = nixpkgs.lib.systems.elaborate crossSystem;
-
       nativePkgs = import nixpkgs { inherit localSystem; };
       targetPkgs = import nixpkgs { inherit localSystem crossSystem; };
 
@@ -23,47 +20,57 @@
       # Binutils must target the SAME architecture and object format as the code
       # your compiler emits.  That is the entire suitability rule:
       #
-      #   * gcc  -> GNU binutils for the same triple (here arm-none-eabi).
-      #   * tcc  -> it has its own code generator/assembler, so it never calls
-      #             `as`; it only needs `ar` (to archive) and `ld` (if it links).
+      #   * gcc -> GNU binutils for the same triple (arm-none-eabi for the ARM
+      #            target, plain x86-64 binutils for a native build).
+      #   * tcc -> it has its own code generator/assembler, so it never calls
+      #            `as`; it only needs `ar` (to archive) and `ld` (if it links).
       #   * a mismatched pair (x86-64 binutils with an ARM compiler) fails: the
-      #             assembler cannot parse the emitted assembly and the linker
-      #             rejects the object format.
+      #            assembler cannot parse the emitted assembly.
       #
-      # Section "negative test" below builds that mismatch on purpose and proves
-      # it fails.
+      # The `mismatch` output below builds that mismatch on purpose and proves it
+      # fails, so the rule is checked rather than merely stated.
+      #
+      # This chapter demonstrates the substitution NATIVELY (x86-64), because
+      # that is the case where the wiring is short enough to read.  For a cross
+      # target the very same `wrapBintoolsWith`/`wrapCCWith` calls are used by
+      # nixpkgs internally, with the target's platform descriptions filled in --
+      # see `pkgs/stdenv/cross/default.nix`.
 
       # =======================================================================
-      # Explicitly wrapped binutils
+      # 1. Explicitly wrapped binutils.
       # =======================================================================
       # `wrapBintoolsWith` is to binutils what `wrapCCWith` is to a compiler: it
       # produces the package whose setup hook exports AR/AS/LD/NM/RANLIB/... .
-      # Any package providing $out/bin/<prefix>{ar,as,ld,...} works.
+      # Any package providing $out/bin/{ar,as,ld,nm,objcopy,ranlib,strip,...}
+      # works, as long as it matches the compiler's target.
       myBintools = nativePkgs.wrapBintoolsWith {
-        bintools = targetPkgs.buildPackages.binutils-unwrapped;
-        libc = targetPkgs.newlib;
+        bintools = nativePkgs.binutils-unwrapped;
+        libc = null;
       };
 
-      # A compiler that uses exactly those binutils.
+      # =======================================================================
+      # 2. A compiler that uses exactly those binutils.
+      # =======================================================================
+      # The `cc` argument must be the RAW compiler (gcc-unwrapped), because
+      # `wrapCCWith` looks for a driver named `gcc` in its $out/bin.  We also give
+      # it a libc, since this is a hosted (Linux) target.
       myCC = nativePkgs.wrapCCWith {
-        cc = targetPkgs.buildPackages.gcc;
+        cc = nativePkgs.gcc-unwrapped;
         bintools = myBintools;
-        libc = targetPkgs.newlib;
+        libc = nativePkgs.glibc;
       };
 
       stdenv = nativePkgs.stdenv.override {
-        inherit buildPlatform;
-        hostPlatform = targetPlatform;
-        targetPlatform = targetPlatform;
         cc = myCC;
         hasCC = true;
-        extraBuildInputs = [ ];
-        overrides = _: _: { };
         allowedRequisites = null;
       };
 
-      libadd = stdenv.mkDerivation {
-        pname = "libadd";
+      # =======================================================================
+      # 3. Build with it.
+      # =======================================================================
+      hello = stdenv.mkDerivation {
+        pname = "hello-with-my-binutils";
         version = "1.0.0";
         src = ./src;
         dontConfigure = true;
@@ -71,25 +78,32 @@
         buildPhase = ''
           runHook preBuild
           echo "AR=$AR  -> $(command -v "$AR")"
-          $CC -Os -c add.c -o add.o
-          $AR rcs libadd.a add.o
+          echo "LD=$LD  -> $(command -v "$LD")"
+          $CC add.c main.c -o hello
           runHook postBuild
         '';
         installPhase = ''
           runHook preInstall
-          mkdir -p $out/lib $out/include
-          cp libadd.a $out/lib/
-          cp add.h    $out/include/
+          mkdir -p $out/bin
+          cp hello $out/bin/
           runHook postInstall
+        '';
+        doCheck = true;
+        checkPhase = ''
+          runHook preCheck
+          output="$(./hello)"
+          echo "$output"
+          echo "$output" | grep -q 'add(6, 7) = 13'
+          runHook postCheck
         '';
       };
 
       # =======================================================================
-      # Negative test: a mismatched assembler must be rejected.
+      # 4. Negative test: a mismatched assembler must be rejected.
       # =======================================================================
-      # We produce ARM assembly with the ARM compiler, then feed it to the host's
+      # Emit ARM assembly with the ARM compiler, then feed it to the host's
       # x86-64 `as`.  The assembler must refuse it.  This turns "suitable
-      # binutils" from a slogan into something the build checks.
+      # binutils" into something the build actually checks.
       mismatch = nativePkgs.runCommand "binutils-mismatch" {
         nativeBuildInputs = [ targetPkgs.buildPackages.gcc nativePkgs.binutils ];
       } ''
@@ -97,7 +111,6 @@
 
         # ARM assembly, emitted by the ARM compiler.
         arm-none-eabi-gcc -S add.c -o add.s
-        grep -q '\.arm\|\.syntax' add.s || true
 
         # The x86-64 assembler must NOT accept it.
         if as add.s -o add.o 2> err; then
@@ -112,14 +125,14 @@
     in
     {
       packages.${localSystem} = {
-        inherit libadd mismatch;
-        default = libadd;
+        inherit hello mismatch;
+        default = hello;
       };
 
       env = {
         inherit myBintools myCC stdenv;
-        # The default binutils for this target, for comparison:
-        defaultBintools = targetPkgs.buildPackages.binutils;
+        defaultNativeBintools = nativePkgs.binutils;
+        crossBintools = targetPkgs.buildPackages.binutils;
       };
     };
 }
