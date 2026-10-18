@@ -33,6 +33,19 @@
             soReal = "lib${libName}.so.${version}";
             soMajorLink = "lib${libName}.so.${soMajor}";
             soDevLink = "lib${libName}.so";
+
+            installLines =
+              [ ''cp "lib${libName}.a" "$out/lib/"'' ]
+              ++ lib.optional shared (
+                if isWindows
+                then ''cp "lib${libName}.dll" "$out/bin/" && cp "lib${libName}.dll.a" "$out/lib/"''
+                else ''
+                  cp "${soReal}" "$out/lib/"
+                  ln -sf "${soReal}" "$out/lib/${soMajorLink}"
+                  ln -sf "${soReal}" "$out/lib/${soDevLink}"
+                ''
+              )
+              ++ map (h: ''cp "${h}" "$out/include/"'') headers;
           in
           stdenv.mkDerivation {
             inherit pname version src;
@@ -65,21 +78,8 @@
             installPhase = ''
               runHook preInstall
               mkdir -p "$out/lib" "$out/include"
-            '' + lib.optionalString isWindows ''
-              mkdir -p "$out/bin"
-            '' + lib.concatMapStringsSep "\n"
-              (line: "  ${line}")
-              ([ ''cp "lib${libName}.a" "$out/lib/"'' ]
-                ++ lib.optional shared (
-                  if isWindows
-                  then ''cp "lib${libName}.dll" "$out/bin/" && cp "lib${libName}.dll.a" "$out/lib/"''
-                  else ''
-                    cp "${soReal}" "$out/lib/"
-                    ln -sf "${soReal}" "$out/lib/${soMajorLink}"
-                    ln -sf "${soReal}" "$out/lib/${soDevLink}"
-                  ''
-                )
-                ++ map (h: ''cp "${h}" "$out/include/"'') headers) + ''
+              ${lib.optionalString isWindows ''mkdir -p "$out/bin"''}
+              ${lib.concatMapStringsSep "\n" (l: l) installLines}
               runHook postInstall
             '';
           }) { };
