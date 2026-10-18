@@ -89,20 +89,35 @@
           find "$out/lib" -type f -name '*.so*' \
             -exec patchelf --set-rpath '$ORIGIN' {} \;
 
-          # A relocatable pkg-config file for each library.
-          for l in add mul; do
-            mkdir -p "$out/lib/pkgconfig"
-            cat > "$out/lib/pkgconfig/lib$l.pc" <<EOF
+          # A relocatable pkg-config file for each library.  The heredoc is
+          # QUOTED ('EOF') so the shell writes `${pcfiledir}` etc. verbatim for
+          # pkg-config to expand at use time; Nix's `''${` escape keeps Nix
+          # from interpolating them too.
+          mkdir -p "$out/lib/pkgconfig"
+          cat > "$out/lib/pkgconfig/libadd.pc" <<'EOF'
           prefix=''${pcfiledir}/../..
+          exec_prefix=''${prefix}
           libdir=''${prefix}/lib
           includedir=''${prefix}/include
-          Name: lib$l
+
+          Name: libadd
           Description: cross-compilation demo library
           Version: 1.0.0
-          Libs: -L''${libdir} -l$l
+          Libs: -L''${libdir} -ladd
           Cflags: -I''${includedir}
           EOF
-          done
+          cat > "$out/lib/pkgconfig/libmul.pc" <<'EOF'
+          prefix=''${pcfiledir}/../..
+          exec_prefix=''${prefix}
+          libdir=''${prefix}/lib
+          includedir=''${prefix}/include
+
+          Name: libmul
+          Description: cross-compilation demo library
+          Version: 1.0.0
+          Libs: -L''${libdir} -lmul
+          Cflags: -I''${includedir}
+          EOF
           runHook postInstall
         '';
 
