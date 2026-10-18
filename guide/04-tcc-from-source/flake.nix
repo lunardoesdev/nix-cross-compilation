@@ -55,13 +55,18 @@
         #
         # --crtprefix is separate and is where crt1.o/crti.o are looked up; it
         # gets nixpkgs' glibc.
+        # `--elfinterp` bakes the dynamic linker path into the compiler.  NixOS
+        # has no `/lib64/ld-linux-x86-64.so.2` (TCC's default), so without this
+        # the produced executables cannot start: the kernel looks for an
+        # interpreter that does not exist.  Point it at nixpkgs' glibc loader.
         buildPhase = ''
           runHook preBuild
           prefix="$out"
           ./configure --prefix="$prefix" --cc=$CC \
             --sysincludepaths="{B}/include:$prefix/include:${pkgs.glibc.dev}/include" \
             --crtprefix="$prefix/lib/tcc:${pkgs.glibc}/lib" \
-            --libpaths="$prefix/lib/tcc:${pkgs.glibc}/lib"
+            --libpaths="$prefix/lib/tcc:${pkgs.glibc}/lib" \
+            --elfinterp="${pkgs.glibc}/lib/ld-linux-x86-64.so.2"
           make -j1            # single job, as everywhere in this guide
           runHook postBuild
         '';
