@@ -182,7 +182,7 @@ $ file result/lib/libmul.a
 result/lib/libmul.a: current ar archive
 
 $ mkdir /tmp/x && cd /tmp/x && ar x "$(nix build --no-link --print-out-paths \
-       /home/you/guide/02-first-cross-flake#libmul)/lib/libmul.a"
+       /home/you/02-first-cross-flake#libmul)/lib/libmul.a"
 $ file mul.o
 mul.o: ELF 32-bit LSB relocatable, ARM, EABI5 version 1 (SYSV), not stripped
 $ nm mul.o | grep -E 'T mul|U add'

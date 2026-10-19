@@ -11,7 +11,7 @@ the tiny C sources it needs, so you can `cd` into a chapter and build it without
 reading any other chapter first.
 
 ```sh
-cd guide/02-first-cross-flake
+cd 02-first-cross-flake
 nix build .#libmul --max-jobs 1 --cores 1
 ```
 
@@ -113,7 +113,7 @@ Appendix C collects the full rule and the script.
 ## Repository layout
 
 ```
-guide/
+.
 ├── README.md                 # this index
 ├── scripts/
 │   └── build.sh              # enforces --max-jobs 1 --cores 1
@@ -124,9 +124,8 @@ guide/
 └── ...
 ```
 
-The companion directories `nix-embed-crosscompilation/` and
-`nix-general-cross-compilation/` are the original drafts this guide was built
-from. Everything of value in them now lives in the chapters here.
+This repository *is* the guide: every chapter sits at the top level as its own
+directory.
 
 ## Requirements
 

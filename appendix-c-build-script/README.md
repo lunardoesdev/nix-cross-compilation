@@ -56,7 +56,7 @@ and, where a `make` is invoked directly, `make -j1`.
 
 ## The wrapper script
 
-`guide/scripts/build.sh` wraps the flags so you cannot forget them:
+`scripts/build.sh` wraps the flags so you cannot forget them:
 
 ```sh
 ./scripts/build.sh .#libmul                       # nix build .#libmul --max-jobs 1 --cores 1
