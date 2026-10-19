@@ -1,0 +1,9 @@
+prefix=@prefix@
+includedir=@includedir@
+libdir=@libdir@
+
+Name: libadd
+Description: add() demo library
+Version: @PACKAGE_VERSION@
+Libs: -L${libdir} -ladd
+Cflags: -I${includedir}

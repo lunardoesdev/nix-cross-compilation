@@ -1,0 +1,10 @@
+prefix=@prefix@
+includedir=@includedir@
+libdir=@libdir@
+
+Name: libmul
+Description: mul() demo library
+Version: @PACKAGE_VERSION@
+Requires: libadd
+Libs: -L${libdir} -lmul
+Cflags: -I${includedir}
