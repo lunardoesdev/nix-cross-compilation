@@ -83,17 +83,20 @@ needed for extras (e.g. forcing the software renderer).
 | approach | what the bundle ships | runs on musl? | NVIDIA accel? | size | chapter |
 |---|---|---|---|---|---|
 | **Bundled Mesa** | a glibc Mesa (llvmpipe) + glvnd + DRI | yes | no (software only) | big (LLVM) | [24](../24-gl-bundled-mesa/README.md) |
-| **Host drivers** | nothing GPU; loads the host's | only if libc-compatible | yes (host blob) | tiny | [25](../25-gl-optional-drivers/README.md) |
+| **Host drivers** | nothing GPU; loads the host's | only if libc-compatible | yes (host blob) | tiny | [25](../25-gl-optional-drivers/README.md), [27](../27-gl-host-drivers/README.md) |
 | **`SHARUN_MESA_PATH`** | a Mesa in its own dir, swappable | yes | no (software only) | big | [26](../26-gl-sharun-mesa-path/README.md) |
 
 * **Bundled Mesa** — the canonical approach: `quick-sharun` enables
   `DEPLOY_OPENGL=1` automatically for GPU apps. Bullet-proof, but the bundle
   carries Mesa and its `libLLVM` (~130 MB; upstream builds a **no-LLVM** Mesa to
   cut this to ~66 MB).
-* **Host drivers** — ship no driver and let the host's be loaded. Tiny and it is
+* **Host drivers** — ship no driver and let the host's be loaded. Tiny, and it is
   the *only* way to use the proprietary NVIDIA driver, but it only works when
   the host driver matches the app's libc (glibc hosts, or sometimes musl via the
   one-way `dlopen` above). Upstream calls this `USE_HOST_MESA_DRIVERS=1`.
+  [Chapter 27](../27-gl-host-drivers/README.md) is this case on its own;
+  [chapter 25](../25-gl-optional-drivers/README.md) offers it *and* a bundled
+  variant from one flake.
 * **`SHARUN_MESA_PATH`** — bundle Mesa but keep it in a separate directory and
   point `SHARUN_MESA_PATH` at it. Same size, but you can **swap the Mesa version
   at runtime** without rebuilding the app, and you can ship one Mesa for many
@@ -136,6 +139,8 @@ in how the driver is supplied:
   bundle by default plus a bundled-Mesa variant.
 * [26 — `SHARUN_MESA_PATH`](../26-gl-sharun-mesa-path/README.md): Mesa in its own
   directory, swappable at runtime.
+* [27 — Host drivers only](../27-gl-host-drivers/README.md): ship no driver, use
+  the machine's own — smallest bundle, real GPU/NVIDIA, no musl.
 
 ---
 

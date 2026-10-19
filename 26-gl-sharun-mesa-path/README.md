@@ -1,4 +1,4 @@
-[« Previous: 25 — Optional drivers](../25-gl-optional-drivers/README.md) · [Index](../README.md) · [Next: Appendix A — Troubleshooting & FAQ »](../appendix-a-troubleshooting/README.md)
+[« Previous: 25 — Optional drivers](../25-gl-optional-drivers/README.md) · [Index](../README.md) · [Next: 27 — Host drivers only »](../27-gl-host-drivers/README.md)
 
 # 26 — `SHARUN_MESA_PATH`: a swappable Mesa
 
@@ -136,10 +136,11 @@ You now have all three ways to give a portable GL app a driver:
 | [24](../24-gl-bundled-mesa/README.md) | bundled Mesa (renders anywhere) |
 | [25](../25-gl-optional-drivers/README.md) | host drivers, optionally bundled |
 | 26 | `SHARUN_MESA_PATH` (swappable) |
+| [27](../27-gl-host-drivers/README.md) | host drivers only (real GPU, no musl) |
 
 Continue with [Appendix A — Troubleshooting & FAQ](../appendix-a-troubleshooting/README.md),
 or go back to the [index](../README.md).
 
 ---
 
-[« Previous: 25 — Optional drivers](../25-gl-optional-drivers/README.md) · [Index](../README.md) · [Next: Appendix A — Troubleshooting & FAQ »](../appendix-a-troubleshooting/README.md)
+[« Previous: 25 — Optional drivers](../25-gl-optional-drivers/README.md) · [Index](../README.md) · [Next: 27 — Host drivers only »](../27-gl-host-drivers/README.md)
