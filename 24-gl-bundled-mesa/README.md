@@ -1,6 +1,6 @@
-[« Previous: 22 — devkitPro with devkitNix](../22-devkitpro-devkitnix/README.md) · [Index](../README.md) · [Next: Appendix A — Troubleshooting & FAQ »](../appendix-a-troubleshooting/README.md)
+[« Previous: 23 — Portable OpenGL: choosing where the driver comes from](../23-gl-portability-overview/README.md) · [Index](../README.md) · [Next: 25 — Optional drivers »](../25-gl-optional-drivers/README.md)
 
-# 23 — A C++ SDL3 + OpenGL app, portable to musl systems
+# 24 — Bundled Mesa: a C++ SDL3 + OpenGL app that renders anywhere
 
 > **Goal.** Build a **C++** SDL3 application that draws an **OpenGL triangle**,
 > shows it for three seconds and exits, and package it with **sharun + uruntime**
@@ -9,10 +9,12 @@
 
 The complete flake is in [`flake.nix`](flake.nix); the source in [`src/`](src).
 
-This chapter is the "case study" that combines everything: a real language
-runtime (C++), a real graphics API (OpenGL), and the portable-bundle technique
-from [chapter 18](../18-fhs-portable-sharun-uruntime/README.md) — extended with
-the one extra ingredient OpenGL needs.
+This is the "bundled Mesa" approach from the
+[overview](../23-gl-portability-overview/README.md): the bundle carries its own
+glibc Mesa, so it renders even where the host has no compatible driver. It
+combines a real language runtime (C++), a real graphics API (OpenGL), and the
+portable-bundle technique from
+[chapter 18](../18-fhs-portable-sharun-uruntime/README.md).
 
 ---
 
@@ -157,17 +159,22 @@ hosts.
 * **`env -i` without `DISPLAY`/`XAUTHORITY`.** X clients need both; `env -i` that
   drops them fails with `x11 not available` / "Authorization required".
 * **Bundle size.** Bundling Mesa pulls in LLVM. If you only target glibc hosts,
-  prefer chapter 18's host-driver approach.
+  prefer chapter 25's host-driver approach, or a Mesa built without LLVM (see the
+  [overview](../23-gl-portability-overview/README.md), section 4).
+* **NVIDIA.** This bundle forces the software renderer, so an NVIDIA machine
+  still renders on the CPU. To use the GPU (including the proprietary driver) use
+  the [host-driver approach](../25-gl-optional-drivers/README.md).
 * **Xvfb's GLX is old.** Under Xvfb the context may report "Compatibility
   Profile" even though 3.3 core was requested; on a real server you get the core
   profile.
 
 ## 8. What's next
 
-This was the last chapter. Continue with
-[Appendix A — Troubleshooting & FAQ](../appendix-a-troubleshooting/README.md),
-or go back to the [index](../README.md).
+[Chapter 25](../25-gl-optional-drivers/README.md) shows the same app as a
+**host-driver** bundle by default, with the bundled-Mesa variant as an option —
+the trade-off in the other direction. [Chapter 26](../26-gl-sharun-mesa-path/README.md)
+keeps Mesa but puts it behind `SHARUN_MESA_PATH` so it can be swapped at runtime.
 
 ---
 
-[« Previous: 22 — devkitPro with devkitNix](../22-devkitpro-devkitnix/README.md) · [Index](../README.md) · [Next: Appendix A — Troubleshooting & FAQ »](../appendix-a-troubleshooting/README.md)
+[« Previous: 23 — Portable OpenGL: choosing where the driver comes from](../23-gl-portability-overview/README.md) · [Index](../README.md) · [Next: 25 — Optional drivers »](../25-gl-optional-drivers/README.md)
