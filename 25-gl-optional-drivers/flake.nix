@@ -80,14 +80,13 @@
             Terminal=true
             Categories=Development;
           '';
-          # GL bits only used when bundleGL = true.
+          # GL bits only used when bundleGL = true.  Only LITERAL values: sharun
+          # does not expand $APPDIR in .env.  The Mesa paths are auto-detected
+          # from the layout (lib/dri, share/glvnd/egl_vendor.d).
           glEnv = lib.optionalString bundleGL ''
             LIBGL_ALWAYS_SOFTWARE=1
             GALLIUM_DRIVER=llvmpipe
-            LD_LIBRARY_PATH=$APPDIR/lib
-            LIBGL_DRIVERS_PATH=$APPDIR/lib/dri
             __GLX_VENDOR_LIBRARY_NAME=mesa
-            __EGL_VENDOR_LIBRARY_FILENAMES=$APPDIR/lib/glvnd/egl_vendor.d/50_mesa.json
           '';
         in
         pkgs.stdenvNoCC.mkDerivation {
@@ -109,7 +108,7 @@
             cp -L ${pkgs.glibc}/lib/*.so* "$out/lib/"
             chmod -R u+w "$out/lib"
           '' + lib.optionalString bundleGL ''
-            mkdir -p "$out/lib/dri" "$out/lib/glvnd/egl_vendor.d"
+            mkdir -p "$out/lib/dri" "$out/share/glvnd/egl_vendor.d"
             for f in libGL.so.1 libGLX.so.0 libEGL.so.1 libGLdispatch.so.0 libOpenGL.so.0; do
               cp -L ${pkgs.libGL}/lib/"$f"* "$out/lib/" 2>/dev/null || true
             done
@@ -119,8 +118,8 @@
             cp -L ${pkgs.mesa}/lib/dri/*.so          "$out/lib/dri/" 2>/dev/null || true
             sed 's#"[^"]*libEGL_mesa.so.0"#"libEGL_mesa.so.0"#' \
               ${pkgs.mesa}/share/glvnd/egl_vendor.d/50_mesa.json \
-              > "$out/lib/glvnd/egl_vendor.d/50_mesa.json"
-            chmod -R u+w "$out/lib"
+              > "$out/share/glvnd/egl_vendor.d/50_mesa.json"
+            chmod -R u+w "$out/lib" "$out/share"
           '' + ''
             # DT_NEEDED closure of the app, plus the Mesa seeds when bundling GL.
             # Unmatched globs (host-driver mode) are skipped by the `-e` test.
@@ -193,7 +192,7 @@
         export LD_LIBRARY_PATH="$out/lib"
         export LIBGL_DRIVERS_PATH="$out/lib/dri"
         export __GLX_VENDOR_LIBRARY_NAME=mesa
-        export __EGL_VENDOR_LIBRARY_FILENAMES="$out/lib/glvnd/egl_vendor.d/50_mesa.json"
+        export __EGL_VENDOR_LIBRARY_DIRS="$out/share/glvnd/egl_vendor.d"
         export SDL_VIDEODRIVER=x11
       '';
 
