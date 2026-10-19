@@ -164,19 +164,23 @@
         };
 
       # A host that provides Mesa.  In the sandbox there is no /usr/lib GL, so we
-      # point the *host-driver* bundle at nixpkgs' Mesa to simulate one.
+      # point the *host-driver* bundle at nixpkgs' Mesa to simulate one.  The
+      # directories go on the loader's search path (sharun appends the host's
+      # real ones at runtime).
+      hostGLDir = "${pkgs.mesa}/lib:${pkgs.libGL}/lib";
       hostGLEnv = ''
         export LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe
-        export LD_LIBRARY_PATH="${pkgs.mesa}/lib:${pkgs.libGL}/lib"
         export LIBGL_DRIVERS_PATH="${pkgs.mesa}/lib/dri"
         export __GLX_VENDOR_LIBRARY_NAME=mesa
         export __EGL_VENDOR_LIBRARY_FILENAMES="${pkgs.mesa}/share/glvnd/egl_vendor.d/50_mesa.json"
         export SDL_VIDEODRIVER=x11
       '';
 
-      runViaLoader = check: ''
+      # Run the bundle through its bundled loader.  `extraPath` simulates the
+      # host directories sharun appends to the library path.
+      runViaLoader = { check, extraPath ? "" }: ''
         output="$(xvfb-run -a -s "-screen 0 1024x768x24" \
-          "$out/lib/ld-linux-x86-64.so.2" --library-path "$out/lib" \
+          "$out/lib/ld-linux-x86-64.so.2" --library-path "$out/lib${extraPath}" \
           "$out/shared/bin/sdl3-triangle" --seconds 1)"
         echo "$output"
         echo "$output" | grep -q '${check}'
@@ -185,12 +189,15 @@
       portable = mkPortable {
         name = "sdl3-triangle";
         bundleGL = false;
-        checkCommand = hostGLEnv + runViaLoader "rendered";
+        checkCommand = hostGLEnv + runViaLoader {
+          check = "rendered";
+          extraPath = ":${hostGLDir}";
+        };
       };
       portableBundled = mkPortable {
         name = "sdl3-triangle";
         bundleGL = true;
-        checkCommand = runViaLoader "rendered";
+        checkCommand = runViaLoader { check = "rendered"; };
       };
 
       mkTarball = { name, appdir, suffix ? "" }:
