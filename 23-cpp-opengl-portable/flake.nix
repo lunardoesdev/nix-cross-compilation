@@ -186,6 +186,7 @@
             cat > "$out/.env" <<'EOF'
             LIBGL_ALWAYS_SOFTWARE=1
             GALLIUM_DRIVER=llvmpipe
+            LD_LIBRARY_PATH=$APPDIR/lib
             LIBGL_DRIVERS_PATH=$APPDIR/lib/dri
             __GLX_VENDOR_LIBRARY_NAME=mesa
             __EGL_VENDOR_LIBRARY_FILENAMES=$APPDIR/lib/glvnd/egl_vendor.d/50_mesa.json
@@ -211,6 +212,7 @@
         checkCommand = ''
           export LIBGL_ALWAYS_SOFTWARE=1
           export GALLIUM_DRIVER=llvmpipe
+          export LD_LIBRARY_PATH="$out/lib"
           export LIBGL_DRIVERS_PATH="$out/lib/dri"
           export __GLX_VENDOR_LIBRARY_NAME=mesa
           export __EGL_VENDOR_LIBRARY_FILENAMES="$out/lib/glvnd/egl_vendor.d/50_mesa.json"
