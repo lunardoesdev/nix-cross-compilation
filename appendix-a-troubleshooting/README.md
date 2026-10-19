@@ -1,4 +1,4 @@
-[« Previous: 23 — A C++ SDL3 + OpenGL app](../23-cpp-opengl-portable/README.md) · [Index](../README.md) · [Next: Appendix B — Glossary »](../appendix-b-glossary/README.md)
+[« Previous: 26 — `SHARUN_MESA_PATH`](../26-gl-sharun-mesa-path/README.md) · [Index](../README.md) · [Next: Appendix B — Glossary »](../appendix-b-glossary/README.md)
 
 # Appendix A — Troubleshooting & FAQ
 
@@ -129,4 +129,4 @@ source.
 
 ---
 
-[« Previous: 23 — A C++ SDL3 + OpenGL app](../23-cpp-opengl-portable/README.md) · [Index](../README.md) · [Next: Appendix B — Glossary »](../appendix-b-glossary/README.md)
+[« Previous: 26 — `SHARUN_MESA_PATH`](../26-gl-sharun-mesa-path/README.md) · [Index](../README.md) · [Next: Appendix B — Glossary »](../appendix-b-glossary/README.md)

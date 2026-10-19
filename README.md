@@ -102,11 +102,14 @@ Appendix C collects the full rule and the script.
 | 21 | [Extra platforms that need no LLVM build](21-extra-platforms-no-llvm/README.md) | musl-static, riscv64 Linux, bare-metal AVR/riscv, WASI, Zig multi-target, FreeBSD. |
 | 22 | [devkitPro with devkitNix](22-devkitpro-devkitnix/README.md) | The same two libraries for GBA/NDS/3DS, Switch and GameCube/Wii/WiiU. |
 
-### Part 7 — Case study: a C++ OpenGL app that runs anywhere
+### Part 7 — Portable OpenGL: four approaches
 
 | # | Chapter | What it covers |
 |---|---------|----------------|
-| 23 | [A C++ SDL3 + OpenGL app, portable to musl](23-cpp-opengl-portable/README.md) | A C++ SDL3 app drawing an OpenGL triangle, bundled with sharun + uruntime and a **bundled Mesa**, so it runs even on musl systems. |
+| 23 | [Portable OpenGL: choosing where the driver comes from](23-gl-portability-overview/README.md) | The libc↔driver rule, how sharun runs on musl, and the three driver strategies (+ NVIDIA). Text only. |
+| 24 | [Bundled Mesa](24-gl-bundled-mesa/README.md) | A C++ SDL3 + OpenGL triangle that renders anywhere, including musl, by shipping Mesa. |
+| 25 | [Optional drivers](25-gl-optional-drivers/README.md) | Host-driver bundle by default (small, NVIDIA-capable) plus a bundled-Mesa variant. |
+| 26 | [`SHARUN_MESA_PATH`](26-gl-sharun-mesa-path/README.md) | Mesa in its own directory, swappable at runtime without rebuilding the app. |
 
 ### Appendices
 
