@@ -73,7 +73,7 @@
           runHook preCheck
           file uefi-demo.efi | tee file.txt
           grep -q 'PE32+ executable' file.txt
-          grep -qi 'EFI application' file.txt
+          grep -q 'for EFI' file.txt
           runHook postCheck
         '';
 
