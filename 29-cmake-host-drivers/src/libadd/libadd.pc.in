@@ -1,0 +1,9 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+includedir=${prefix}/include
+libdir=${prefix}/lib
+
+Name: libadd
+Description: add() demo library
+Version: @PROJECT_VERSION@
+Libs: -L${libdir} -ladd
+Cflags: -I${includedir}

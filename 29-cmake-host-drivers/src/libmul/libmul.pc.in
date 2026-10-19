@@ -1,0 +1,10 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+includedir=${prefix}/include
+libdir=${prefix}/lib
+
+Name: libmul
+Description: mul() demo library
+Version: @PROJECT_VERSION@
+Requires: libadd
+Libs: -L${libdir} -lmul
+Cflags: -I${includedir}
