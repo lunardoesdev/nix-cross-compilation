@@ -47,11 +47,20 @@
         '';
 
         # Headless check: Xvfb + Mesa's llvmpipe software rasteriser.
+        #
+        # On NixOS (and in the sandbox) a GL app must be told where Mesa's
+        # glvnd vendor libraries and DRI drivers are -- this is exactly the
+        # job nixGL normally does.  The bundle sets the same variables in its
+        # `.env` (section 4), pointing into its own lib/ directory.
         doCheck = true;
         checkPhase = ''
           runHook preCheck
           export LIBGL_ALWAYS_SOFTWARE=1
           export GALLIUM_DRIVER=llvmpipe
+          export LIBGL_DRIVERS_PATH="${pkgs.mesa}/lib/dri"
+          export __GLX_VENDOR_LIBRARY_NAME=mesa
+          export __EGL_VENDOR_LIBRARY_FILENAMES="${pkgs.mesa}/share/glvnd/egl_vendor.d/50_mesa.json"
+          export LD_LIBRARY_PATH="${pkgs.mesa}/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           export SDL_VIDEODRIVER=x11
           output="$(xvfb-run -a -s "-screen 0 1024x768x24" \
             ./sdl3-triangle --seconds 1)"
