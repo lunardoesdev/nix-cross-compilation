@@ -55,7 +55,6 @@
           # --- stage the APK payload ---------------------------------------
           mkdir -p stage/lib/arm64-v8a
           cp libmain.so libadd.so libmul.so stage/lib/arm64-v8a/
-          cp AndroidManifest.xml stage/
 
           # --- package + align + sign --------------------------------------
           ${buildTools}/aapt package -f \
