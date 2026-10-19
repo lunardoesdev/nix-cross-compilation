@@ -34,17 +34,19 @@
       # Go — cross via GOOS/GOARCH on the native toolchain.
       # =======================================================================
       # Pure Go needs no cross toolchain: the ordinary `go` command can emit code
-      # for any GOOS/GOARCH.  `CGO_ENABLED=0` keeps it pure Go (no C toolchain).
+      # for any GOOS/GOARCH.  nixpkgs' Go builder sets GOOS/GOARCH from the
+      # platform, so override them for the build phase; CGO_ENABLED=0 keeps it
+      # pure Go (no C toolchain needed).
       mkGo = { goos, goarch }: pkgs.buildGoModule {
         pname = "gohello";
         version = "0.1.0";
         src = ./src/gohello;
         vendorHash = null;          # no dependencies
-        env = {
-          GOOS = goos;
-          GOARCH = goarch;
-          CGO_ENABLED = "0";
-        };
+        preBuild = ''
+          export GOOS=${goos}
+          export GOARCH=${goarch}
+          export CGO_ENABLED=0
+        '';
         strictDeps = true;
         enableParallelBuilding = false;
         meta.description = "gohello for ${goos}/${goarch}";
