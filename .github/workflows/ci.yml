@@ -1,0 +1,49 @@
+name: guide
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  # Discover every chapter that has a flake.nix (text-only chapters have none).
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      chapters: ${{ steps.find.outputs.chapters }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: find
+        run: |
+          chapters=$(find . -mindepth 2 -maxdepth 2 -name flake.nix -printf '%h\n' \
+            | sed 's#^\./##' | sort \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "chapters=$chapters" >> "$GITHUB_OUTPUT"
+
+  # One job per chapter.  Each job uses a single core and a single job, exactly
+  # like the guide's rule -- parallelism comes from the matrix, not from Nix.
+  build:
+    needs: discover
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        chapter: ${{ fromJson(needs.discover.outputs.chapters) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      # Optional binary cache: set CACHIX_AUTH_TOKEN and CACHIX_NAME as repo
+      # secrets/variables to reuse store paths between runs.
+      - if: ${{ vars.CACHIX_NAME != '' }}
+        uses: cachix/cachix-action@v15
+        with:
+          name: ${{ vars.CACHIX_NAME }}
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Build ${{ matrix.chapter }}
+        working-directory: ${{ matrix.chapter }}
+        run: nix build .#default --max-jobs 1 --cores 1
