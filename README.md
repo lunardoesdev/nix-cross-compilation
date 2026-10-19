@@ -102,6 +102,12 @@ Appendix C collects the full rule and the script.
 | 21 | [Extra platforms that need no LLVM build](21-extra-platforms-no-llvm/README.md) | musl-static, riscv64 Linux, bare-metal AVR/riscv, WASI, Zig multi-target, FreeBSD. |
 | 22 | [devkitPro with devkitNix](22-devkitpro-devkitnix/README.md) | The same two libraries for GBA/NDS/3DS, Switch and GameCube/Wii/WiiU. |
 
+### Part 7 — Case study: a C++ OpenGL app that runs anywhere
+
+| # | Chapter | What it covers |
+|---|---------|----------------|
+| 23 | [A C++ SDL3 + OpenGL app, portable to musl](23-cpp-opengl-portable/README.md) | A C++ SDL3 app drawing an OpenGL triangle, bundled with sharun + uruntime and a **bundled Mesa**, so it runs even on musl systems. |
+
 ### Appendices
 
 | | Appendix | What it covers |

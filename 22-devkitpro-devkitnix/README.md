@@ -1,4 +1,4 @@
-[« Previous: 21 — Extra platforms that need no LLVM build](../21-extra-platforms-no-llvm/README.md) · [Index](../README.md) · [Next: Appendix A — Troubleshooting & FAQ »](../appendix-a-troubleshooting/README.md)
+[« Previous: 21 — Extra platforms that need no LLVM build](../21-extra-platforms-no-llvm/README.md) · [Index](../README.md) · [Next: 23 — A C++ SDL3 + OpenGL app »](../23-cpp-opengl-portable/README.md)
 
 # 22 — devkitPro with devkitNix
 
@@ -137,4 +137,4 @@ Next: [Appendix A — Troubleshooting & FAQ](../appendix-a-troubleshooting/READM
 
 ---
 
-[« Previous: 21 — Extra platforms that need no LLVM build](../21-extra-platforms-no-llvm/README.md) · [Index](../README.md) · [Next: Appendix A — Troubleshooting & FAQ »](../appendix-a-troubleshooting/README.md)
+[« Previous: 21 — Extra platforms that need no LLVM build](../21-extra-platforms-no-llvm/README.md) · [Index](../README.md) · [Next: 23 — A C++ SDL3 + OpenGL app »](../23-cpp-opengl-portable/README.md)

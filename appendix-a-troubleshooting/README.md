@@ -1,4 +1,4 @@
-[« Previous: 22 — devkitPro with devkitNix](../22-devkitpro-devkitnix/README.md) · [Index](../README.md) · [Next: Appendix B — Glossary »](../appendix-b-glossary/README.md)
+[« Previous: 23 — A C++ SDL3 + OpenGL app](../23-cpp-opengl-portable/README.md) · [Index](../README.md) · [Next: Appendix B — Glossary »](../appendix-b-glossary/README.md)
 
 # Appendix A — Troubleshooting & FAQ
 
@@ -129,4 +129,4 @@ source.
 
 ---
 
-[« Previous: 22 — devkitPro with devkitNix](../22-devkitpro-devkitnix/README.md) · [Index](../README.md) · [Next: Appendix B — Glossary »](../appendix-b-glossary/README.md)
+[« Previous: 23 — A C++ SDL3 + OpenGL app](../23-cpp-opengl-portable/README.md) · [Index](../README.md) · [Next: Appendix B — Glossary »](../appendix-b-glossary/README.md)
