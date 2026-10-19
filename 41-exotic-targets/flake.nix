@@ -39,14 +39,17 @@
           $AR rcs libmul.a mul.o
 
           # Link as a shared object against gnu-efi, then convert to PE/COFF.
-          $LD -shared -Bsymbolic \
+          # Use the *raw* binutils: the Nix bintools wrappers inject target
+          # flags meant for ordinary hosted builds, which confuse this
+          # freestanding gnu-efi link.
+          ${pkgs.binutils-unwrapped}/bin/ld -shared -Bsymbolic \
             -T ${gnu}/lib/elf_x86_64_efi.lds \
             ${gnu}/lib/crt0-efi-x86_64.o \
             main.o libmul.a libadd.a \
             -L${gnu}/lib -lefi -lgnuefi \
             -o uefi-demo.so
 
-          $OBJCOPY \
+          ${pkgs.binutils-unwrapped}/bin/objcopy \
             -j .text -j .sdata -j .data -j .dynamic \
             -j .dynsym -j .rel -j .rela -j .reloc \
             --target=efi-app-x86_64 \
