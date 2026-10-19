@@ -151,6 +151,7 @@
               > "$out/lib/glvnd/egl_vendor.d/50_mesa.json"
 
             # copy the DT_NEEDED closure of the app AND the Mesa seeds
+            chmod -R u+w "$out/lib"
             for seed in "$out/shared/bin/${mainProgram}" \
                         "$out/lib/libgallium-"*.so \
                         "$out/lib/libGLX_mesa.so.0" \
@@ -160,7 +161,7 @@
               ${pkgs.glibc.bin}/bin/ldd "$seed" 2>/dev/null \
                 | grep -o '/nix/store/[^ ]*' || true
             done | sort -u | while IFS= read -r l; do
-              cp -a --no-preserve=mode,ownership "$l" "$out/lib/$(basename "$l")"
+              cp -af --no-preserve=mode,ownership "$l" "$out/lib/$(basename "$l")"
             done
 
             test -f "$out/lib/ld-linux-x86-64.so.2" || {
