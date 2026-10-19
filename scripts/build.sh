@@ -16,10 +16,17 @@
 #
 set -euo pipefail
 
-# Always run from the guide root, no matter where the script is called from.
+# Always run from the repository root, no matter where the script is called from.
 cd "$(dirname "$0")/.."
 
 NIX_FLAGS=(--max-jobs 1 --cores 1)
+
+# -C DIR: run the build from DIR instead (e.g. a chapter directory).
+if [ "${1:-}" = "-C" ]; then
+    shift
+    cd "$1"
+    shift
+fi
 
 # --all: build the `default` output of every chapter that has a flake.nix.
 if [ "${1:-}" = "--all" ]; then
