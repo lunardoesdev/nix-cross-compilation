@@ -10,9 +10,13 @@
  */
 #include <SDL3/SDL.h>
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -63,10 +67,32 @@ static int parse_frames(int argc, char **argv)
     return frames;
 }
 
+/* SDL logs an error if XDG_RUNTIME_DIR is unset (a clean/bare environment does
+ * not set it).  Provide a private fallback before SDL_Init. */
+static void ensure_xdg_runtime_dir(void)
+{
+    char dir[4096];
+    const char *tmp;
+
+    if (getenv("XDG_RUNTIME_DIR") != NULL)
+        return;
+
+    tmp = getenv("TMPDIR");
+    if (tmp == NULL || *tmp == '\0')
+        tmp = "/tmp";
+
+    snprintf(dir, sizeof(dir), "%s/sdl3-runtime-%u", tmp, (unsigned)getuid());
+    if (mkdir(dir, 0700) != 0 && errno != EEXIST)
+        return; /* leave it unset; SDL will only warn */
+    setenv("XDG_RUNTIME_DIR", dir, 1);
+}
+
 int main(int argc, char **argv)
 {
     App app;
     int frames = parse_frames(argc, argv);
+
+    ensure_xdg_runtime_dir();
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         fprintf(stderr, "sdl3-game: SDL_Init failed: %s\n", SDL_GetError());
