@@ -7,10 +7,13 @@
     let
       localSystem = "x86_64-linux";
 
-      # A freestanding bare-metal ARM toolchain: no C library at all.
+      # A bare-metal ARM toolchain.  We keep the default (cached) newlib
+      # toolchain but link the firmware with -nostdlib, so the image is
+      # freestanding anyway.  (`libc = null` would ask Nix to *build* a
+      # freestanding gcc from source -- the cost warning from chapter 09.)
       crossSystem = {
         config = "arm-none-eabi";
-        libc = null;              # freestanding (see chapter 09)
+        libc = "newlib";
       };
 
       buildPlatform  = nixpkgs.lib.systems.elaborate localSystem;
