@@ -161,7 +161,9 @@
               ${pkgs.glibc.bin}/bin/ldd "$seed" 2>/dev/null \
                 | grep -o '/nix/store/[^ ]*' || true
             done | sort -u | while IFS= read -r l; do
-              cp -af --no-preserve=mode,ownership "$l" "$out/lib/$(basename "$l")"
+              # -L: copy the file the symlink points at, named by its soname,
+              # so we do not ship dangling links.
+              cp -Lf --no-preserve=mode,ownership "$l" "$out/lib/$(basename "$l")"
             done
 
             test -f "$out/lib/ld-linux-x86-64.so.2" || {
