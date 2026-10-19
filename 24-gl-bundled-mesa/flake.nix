@@ -120,7 +120,7 @@
             set -eu
             bin="${app}/bin/${mainProgram}"
             mkdir -p "$out/bin" "$out/shared/bin" "$out/lib" \
-                     "$out/lib/dri" "$out/lib/glvnd/egl_vendor.d"
+                     "$out/lib/dri" "$out/share/glvnd/egl_vendor.d"
 
             # real ELF + launcher + hardlinks
             cp -L "$bin" "$out/shared/bin/${mainProgram}"
@@ -146,9 +146,11 @@
 
             # glvnd vendor manifest, rewritten to a bare soname so the bundle
             # stays relocatable (glvnd then dlopens it via the loader path).
+            # Placed under share/glvnd/egl_vendor.d so sharun auto-detects it and
+            # sets __EGL_VENDOR_LIBRARY_DIRS (and lib/dri -> LIBGL_DRIVERS_PATH).
             sed 's#"[^"]*libEGL_mesa.so.0"#"libEGL_mesa.so.0"#' \
               ${pkgs.mesa}/share/glvnd/egl_vendor.d/50_mesa.json \
-              > "$out/lib/glvnd/egl_vendor.d/50_mesa.json"
+              > "$out/share/glvnd/egl_vendor.d/50_mesa.json"
 
             # copy the DT_NEEDED closure of the app AND the Mesa seeds
             chmod -R u+w "$out/lib"
@@ -181,15 +183,16 @@
               fi
             done
 
-            # Runtime environment: point Mesa's loader at the bundled drivers.
-            # (A quoted heredoc keeps $APPDIR literal; sharun expands it.)
+            # Runtime environment.  Only LITERAL values go here: sharun does not
+            # expand $APPDIR in .env.  The Mesa paths are not needed because
+            # sharun auto-detects them from the layout:
+            #   lib/dri/                        -> LIBGL_DRIVERS_PATH
+            #   share/glvnd/egl_vendor.d/       -> __EGL_VENDOR_LIBRARY_DIRS
+            # and the bundled vendor libs are already on the library path.
             cat > "$out/.env" <<'EOF'
             LIBGL_ALWAYS_SOFTWARE=1
             GALLIUM_DRIVER=llvmpipe
-            LD_LIBRARY_PATH=$APPDIR/lib
-            LIBGL_DRIVERS_PATH=$APPDIR/lib/dri
             __GLX_VENDOR_LIBRARY_NAME=mesa
-            __EGL_VENDOR_LIBRARY_FILENAMES=$APPDIR/lib/glvnd/egl_vendor.d/50_mesa.json
             EOF
 
             cp ${desktopFile} "$out/${name}.desktop"
@@ -215,7 +218,7 @@
           export LD_LIBRARY_PATH="$out/lib"
           export LIBGL_DRIVERS_PATH="$out/lib/dri"
           export __GLX_VENDOR_LIBRARY_NAME=mesa
-          export __EGL_VENDOR_LIBRARY_FILENAMES="$out/lib/glvnd/egl_vendor.d/50_mesa.json"
+          export __EGL_VENDOR_LIBRARY_DIRS="$out/share/glvnd/egl_vendor.d"
           export SDL_VIDEODRIVER=x11
           output="$(xvfb-run -a -s "-screen 0 1024x768x24" \
             "$out/lib/ld-linux-x86-64.so.2" --library-path "$out/lib" \
