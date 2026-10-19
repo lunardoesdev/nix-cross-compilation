@@ -38,6 +38,9 @@
         src = ./src/libmul;
         nativeBuildInputs = mesonTools;
         buildInputs = [ libadd ];
+        # Forward libadd to anything that links libmul: libmul.pc says
+        # `Requires: libadd`, so consumers need libadd's pkg-config file too.
+        propagatedBuildInputs = [ libadd ];
         strictDeps = true;
         enableParallelBuilding = false;
         doCheck = false;
