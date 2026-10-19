@@ -154,11 +154,20 @@
             done
 
             cat > "$out/.env" <<'EOF'
-            SHARUN_MESA_PATH=$APPDIR/mesa
-            SHARUN_EXTRA_LIBRARY_PATH=$APPDIR/mesa/lib
             LIBGL_ALWAYS_SOFTWARE=1
             GALLIUM_DRIVER=llvmpipe
+            __GLX_VENDOR_LIBRARY_NAME=mesa
             EOF
+
+            # AppRun.sh runs with $APPDIR set, before the app, and points sharun
+            # at the bundled Mesa via SHARUN_MESA_PATH.  This cannot be done in
+            # .env: sharun does not expand $APPDIR there (values are literal).
+            cat > "$out/AppRun.sh" <<EOF
+            #!/bin/sh
+            export SHARUN_MESA_PATH="\$APPDIR/mesa"
+            exec "\$APPDIR/bin/${mainProgram}" "\$@"
+            EOF
+            chmod +x "$out/AppRun.sh"
 
             cp ${desktopFile} "$out/${name}.desktop"
             echo "bundled $(find "$out/lib" -maxdepth 1 -type f | wc -l) libs + mesa"
@@ -174,18 +183,11 @@
 
       portable = mkPortable {
         name = "sdl3-triangle";
-        # Reproduce what sharun sets from SHARUN_MESA_PATH, then run through the
-        # bundled loader.
+        # Launch via AppRun so AppRun.sh (and therefore SHARUN_MESA_PATH) runs.
         checkCommand = ''
-          export LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe
-          export LIBGL_DRIVERS_PATH="$out/mesa/lib/dri"
-          export __EGL_VENDOR_LIBRARY_DIRS="$out/mesa/share/glvnd/egl_vendor.d"
-          export __GLX_VENDOR_LIBRARY_NAME=mesa
           export SDL_VIDEODRIVER=x11
           output="$(xvfb-run -a -s "-screen 0 1024x768x24" \
-            "$out/lib/ld-linux-x86-64.so.2" \
-            --library-path "$out/lib:$out/mesa/lib" \
-            "$out/shared/bin/sdl3-triangle" --seconds 1)"
+            "$out/AppRun" --seconds 1)"
           echo "$output"
           echo "$output" | grep -q 'rendered'
         '';
