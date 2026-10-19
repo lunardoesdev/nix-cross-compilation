@@ -71,8 +71,10 @@
           export __EGL_VENDOR_LIBRARY_FILENAMES="${pkgs.mesa}/share/glvnd/egl_vendor.d/50_mesa.json"
           export LD_LIBRARY_PATH="${pkgs.mesa}/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           export SDL_VIDEODRIVER=x11
+          exe="$(find . -type f -name sdl3-triangle -perm -u+x | head -n1)"
+          test -n "$exe"
           output="$(xvfb-run -a -s "-screen 0 1024x768x24" \
-            ./build/sdl3-triangle --seconds 1)"
+            "$exe" --seconds 1)"
           echo "$output"
           echo "$output" | grep -q 'score = mul(3, 14) = 42'
           echo "$output" | grep -q 'rendered'
