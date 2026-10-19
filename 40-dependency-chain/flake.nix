@@ -28,7 +28,9 @@
 
         buildPhase = ''
           runHook preBuild
-          $CC app.c -o png-demo${exeExt} $(pkg-config --cflags --libs libpng)
+          # We call zlib directly (zlibVersion), and libpng.pc lists zlib only as
+          # Requires.private -- so a direct zlib user must ask pkg-config for it.
+          $CC app.c -o png-demo${exeExt} $(pkg-config --cflags --libs libpng zlib)
           runHook postBuild
         '';
 
