@@ -113,7 +113,7 @@
           dontFixup = true;
 
           nativeBuildInputs = with pkgs; [
-            bash coreutils findutils gnused gnugrep patchelf glibc.bin zstd
+            bash coreutils findutils gnused gnugrep patchelf glibc.bin zstd xvfb-run
           ];
 
           installPhase = ''
@@ -167,13 +167,16 @@
             test -f "$out/lib/ld-linux-x86-64.so.2" || {
               echo "missing dynamic linker" >&2; exit 1; }
 
-            # Drop store RPATHs.
+            # Drop store RPATHs.  Some entries (e.g. glibc's `libc.so`) are
+            # linker scripts, not ELF, so check the magic first.
             chmod -R u+w "$out/lib" "$out/shared/bin"
             for f in "$out"/lib/*.so* "$out"/lib/dri/*.so "$out/shared/bin/${mainProgram}"; do
               [ -f "$f" ] || continue
               [ -L "$f" ] && continue
               case "$(basename "$f")" in ld-*) continue ;; esac
-              patchelf --remove-rpath "$f" || true
+              if [ "$(dd if="$f" bs=1 count=4 2>/dev/null)" = "$(printf '\177ELF')" ]; then
+                patchelf --remove-rpath "$f" || true
+              fi
             done
 
             # Runtime environment: point Mesa's loader at the bundled drivers.
