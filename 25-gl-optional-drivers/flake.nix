@@ -123,13 +123,13 @@
             chmod -R u+w "$out/lib"
           '' + ''
             # DT_NEEDED closure of the app, plus the Mesa seeds when bundling GL.
+            # Unmatched globs (host-driver mode) are skipped by the `-e` test.
             chmod -R u+w "$out/lib"
-            seeds="$out/shared/bin/${mainProgram}"
-            if [ "${if bundleGL then "1" else "0"}" = "1" ]; then
-              seeds="$seeds $out/lib/libgallium-"*.so "$out/lib/libGLX_mesa.so.0" \
-                     "$out/lib/libEGL_mesa.so.0" "$out/lib/libGL.so.1"
-            fi
-            for seed in $seeds; do
+            for seed in "$out/shared/bin/${mainProgram}" \
+                        "$out/lib/libgallium-"*.so \
+                        "$out/lib/libGLX_mesa.so.0" \
+                        "$out/lib/libEGL_mesa.so.0" \
+                        "$out/lib/libGL.so.1"; do
               [ -e "$seed" ] || continue
               ${pkgs.glibc.bin}/bin/ldd "$seed" 2>/dev/null | grep -o '/nix/store/[^ ]*' || true
             done | sort -u | while IFS= read -r l; do
