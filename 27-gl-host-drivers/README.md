@@ -1,4 +1,4 @@
-[« Previous: 26 — `SHARUN_MESA_PATH`](../26-gl-sharun-mesa-path/README.md) · [Index](../README.md) · [Next: Appendix A — Troubleshooting & FAQ »](../appendix-a-troubleshooting/README.md)
+[« Previous: 26 — `SHARUN_MESA_PATH`](../26-gl-sharun-mesa-path/README.md) · [Index](../README.md) · [Next: 28 — Meson »](../28-meson-host-drivers/README.md)
 
 # 27 — Host drivers only
 
@@ -147,4 +147,4 @@ or go back to the [index](../README.md).
 
 ---
 
-[« Previous: 26 — `SHARUN_MESA_PATH`](../26-gl-sharun-mesa-path/README.md) · [Index](../README.md) · [Next: Appendix A — Troubleshooting & FAQ »](../appendix-a-troubleshooting/README.md)
+[« Previous: 26 — `SHARUN_MESA_PATH`](../26-gl-sharun-mesa-path/README.md) · [Index](../README.md) · [Next: 28 — Meson »](../28-meson-host-drivers/README.md)

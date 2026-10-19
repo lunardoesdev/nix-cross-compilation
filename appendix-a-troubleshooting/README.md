@@ -1,4 +1,4 @@
-[« Previous: 27 — Host drivers only](../27-gl-host-drivers/README.md) · [Index](../README.md) · [Next: Appendix B — Glossary »](../appendix-b-glossary/README.md)
+[« Previous: 30 — Autoconf/Automake](../30-autoconf-host-drivers/README.md) · [Index](../README.md) · [Next: Appendix B — Glossary »](../appendix-b-glossary/README.md)
 
 # Appendix A — Troubleshooting & FAQ
 
@@ -129,4 +129,4 @@ source.
 
 ---
 
-[« Previous: 27 — Host drivers only](../27-gl-host-drivers/README.md) · [Index](../README.md) · [Next: Appendix B — Glossary »](../appendix-b-glossary/README.md)
+[« Previous: 30 — Autoconf/Automake](../30-autoconf-host-drivers/README.md) · [Index](../README.md) · [Next: Appendix B — Glossary »](../appendix-b-glossary/README.md)

@@ -112,6 +112,14 @@ Appendix C collects the full rule and the script.
 | 26 | [`SHARUN_MESA_PATH`](26-gl-sharun-mesa-path/README.md) | Mesa in its own directory, swappable at runtime without rebuilding the app. |
 | 27 | [Host drivers only](27-gl-host-drivers/README.md) | Ship no driver at all: smallest bundle, real GPU/NVIDIA acceleration, no musl. |
 
+### Part 8 — Real build systems, dependencies the Nix way
+
+| # | Chapter | What it covers |
+|---|---------|----------------|
+| 28 | [Meson](28-meson-host-drivers/README.md) | The same app built with Meson; `dependency('libmul')` → `libadd`, no manual flags. |
+| 29 | [CMake](29-cmake-host-drivers/README.md) | `find_package(SDL3)` + `pkg_check_modules`, `PUBLIC` linkage, `propagatedBuildInputs`. |
+| 30 | [Autoconf/Automake](30-autoconf-host-drivers/README.md) | `PKG_CHECK_MODULES` + Libtool, and the `exec_prefix` pkg-config gotcha. |
+
 ### Appendices
 
 | | Appendix | What it covers |
