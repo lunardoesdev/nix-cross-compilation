@@ -120,6 +120,23 @@ Appendix C collects the full rule and the script.
 | 29 | [CMake](29-cmake-host-drivers/README.md) | `find_package(SDL3)` + `pkg_check_modules`, `PUBLIC` linkage, `propagatedBuildInputs`. |
 | 30 | [Autoconf/Automake](30-autoconf-host-drivers/README.md) | `PKG_CHECK_MODULES` + Libtool, and the `exec_prefix` pkg-config gotcha. |
 
+### Part 9 — Beyond the basics
+
+| # | Chapter | What it covers |
+|---|---------|----------------|
+| 31 | [Cross-compiling with build systems](31-cross-build-systems/README.md) | Meson cross files from the stdenv, CMake toolchain files, autotools `--host`. |
+| 32 | [Rust and Go](32-rust-go-cross/README.md) | `rustPlatform` per target; Go's `GOOS`/`GOARCH`. |
+| 33 | [A bare-metal firmware image](33-bare-metal-firmware/README.md) | Linker script + startup + `.elf`/`.bin`, run under QEMU. |
+| 34 | [Packaging an Android APK](34-android-apk/README.md) | NativeActivity, aapt/zipalign/apksigner, signing, AAB. |
+| 35 | [A musl-static bundle](35-musl-static-bundle/README.md) | `pkgsStatic` + sharun: no loader, no libc, 1.4 MB. |
+| 36 | [Customizing nixpkgs](36-customizing-nixpkgs/README.md) | Overlays, `override`, `overrideAttrs`, clang. |
+| 37 | [CI with GitHub Actions](37-ci-github-actions/README.md) | A chapter matrix, caching, single-core in CI. |
+| 38 | [Canadian cross](38-canadian-cross/README.md) | `build ≠ host ≠ target`, and why `pkgsCross` does not nest. |
+| 39 | [32-bit targets and lib32](39-32bit-and-lib32/README.md) | i686-linux, mingw32, and sharun's `lib32/`. |
+| 40 | [A realistic dependency chain](40-dependency-chain/README.md) | zlib → libpng → app, and `Requires.private`. |
+| 41 | [Exotic targets](41-exotic-targets/README.md) | A UEFI application; a kernel-module recipe. |
+| 42 | [`nix bundle` vs sharun](42-nix-bundle-vs-sharun/README.md) | Nix's own bundler compared with the sharun approach. |
+
 ### Appendices
 
 | | Appendix | What it covers |
@@ -127,6 +144,8 @@ Appendix C collects the full rule and the script.
 | A | [Troubleshooting & FAQ](appendix-a-troubleshooting/README.md) | Common failures and what they mean. |
 | B | [Glossary](appendix-b-glossary/README.md) | Every term used in the guide. |
 | C | [The single-core rule & build script](appendix-c-build-script/README.md) | The exact flags and the wrapper script. |
+| D | [Target cheat sheet](appendix-d-target-cheatsheet/README.md) | Triple ↔ `pkgsCross` ↔ format ↔ output, in one table. |
+| E | [Cost and size](appendix-e-cost-size/README.md) | Build weight and artifact sizes per approach. |
 
 ## Repository layout
 

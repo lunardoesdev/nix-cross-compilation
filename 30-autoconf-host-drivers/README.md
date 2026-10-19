@@ -1,4 +1,4 @@
-[« Previous: 29 — CMake](../29-cmake-host-drivers/README.md) · [Index](../README.md) · [Next: Appendix A — Troubleshooting & FAQ »](../appendix-a-troubleshooting/README.md)
+[« Previous: 29 — CMake](../29-cmake-host-drivers/README.md) · [Index](../README.md) · [Next: 31 — Cross-compiling with build systems »](../31-cross-build-systems/README.md)
 
 # 30 — Autoconf/Automake: `PKG_CHECK_MODULES`
 
@@ -160,4 +160,4 @@ or go back to the [index](../README.md).
 
 ---
 
-[« Previous: 29 — CMake](../29-cmake-host-drivers/README.md) · [Index](../README.md) · [Next: Appendix A — Troubleshooting & FAQ »](../appendix-a-troubleshooting/README.md)
+[« Previous: 29 — CMake](../29-cmake-host-drivers/README.md) · [Index](../README.md) · [Next: 31 — Cross-compiling with build systems »](../31-cross-build-systems/README.md)

@@ -1,4 +1,4 @@
-[« Previous: 22 — devkitPro with devkitNix](../22-devkitpro-devkitnix/README.md) · [Index](../README.md) · [Next: Appendix B — Glossary »](../appendix-b-glossary/README.md)
+[« Previous: Appendix B — Glossary](../appendix-b-glossary/README.md) · [Index](../README.md) · [Next: Appendix D — Target cheat sheet »](../appendix-d-target-cheatsheet/README.md)
 
 # Appendix C — The single-core rule & build script
 
@@ -81,4 +81,4 @@ nix run .#explain --max-jobs 1 --cores 1
 
 ---
 
-[« Previous: 22 — devkitPro with devkitNix](../22-devkitpro-devkitnix/README.md) · [Index](../README.md) · [Next: Appendix B — Glossary »](../appendix-b-glossary/README.md)
+[« Previous: Appendix B — Glossary](../appendix-b-glossary/README.md) · [Index](../README.md) · [Next: Appendix D — Target cheat sheet »](../appendix-d-target-cheatsheet/README.md)
