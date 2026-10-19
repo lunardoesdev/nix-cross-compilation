@@ -51,7 +51,8 @@
       # =======================================================================
       # 5. A different compiler — clangStdenv (or `overrideCC`).
       # =======================================================================
-      libadd-clang = pkgs.clangStdenv.callPackage ./src/libadd { };
+      # `clangStdenv` is a stdenv; pass it as the `stdenv` argument.
+      libadd-clang = pkgs.callPackage ./src/libadd { stdenv = pkgs.clangStdenv; };
     in
     {
       packages.${system} = {
