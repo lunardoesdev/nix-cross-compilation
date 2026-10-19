@@ -13,9 +13,13 @@
 
 #include <epoxy/gl.h>
 
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 namespace {
 
@@ -98,11 +102,34 @@ int parse_seconds(int argc, char **argv)
     return seconds;
 }
 
+// SDL logs an error if XDG_RUNTIME_DIR is unset.  A normal desktop session sets
+// it, but a bare/clean environment (a bundle run under `env -i`, a service, a
+// container) does not, so provide a private fallback before SDL_Init.
+void ensure_xdg_runtime_dir()
+{
+    if (std::getenv("XDG_RUNTIME_DIR") != nullptr)
+        return;
+
+    const char *tmp = std::getenv("TMPDIR");
+    if (tmp == nullptr || *tmp == '\0')
+        tmp = "/tmp";
+
+    char dir[4096];
+    std::snprintf(dir, sizeof(dir), "%s/sdl3-runtime-%u", tmp, (unsigned)::getuid());
+
+    if (::mkdir(dir, 0700) != 0 && errno != EEXIST)
+        return; // leave it unset; SDL will only warn
+
+    ::setenv("XDG_RUNTIME_DIR", dir, 1);
+}
+
 } // namespace
 
 int main(int argc, char **argv)
 {
     const int seconds = parse_seconds(argc, argv);
+
+    ensure_xdg_runtime_dir();
 
     // Ask for an OpenGL 3.3 core-profile context.
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);

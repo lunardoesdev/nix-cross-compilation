@@ -110,6 +110,7 @@ Appendix C collects the full rule and the script.
 | 24 | [Bundled Mesa](24-gl-bundled-mesa/README.md) | A C++ SDL3 + OpenGL triangle that renders anywhere, including musl, by shipping Mesa. |
 | 25 | [Optional drivers](25-gl-optional-drivers/README.md) | Host-driver bundle by default (small, NVIDIA-capable) plus a bundled-Mesa variant. |
 | 26 | [`SHARUN_MESA_PATH`](26-gl-sharun-mesa-path/README.md) | Mesa in its own directory, swappable at runtime without rebuilding the app. |
+| 27 | [Host drivers only](27-gl-host-drivers/README.md) | Ship no driver at all: smallest bundle, real GPU/NVIDIA acceleration, no musl. |
 
 ### Appendices
 
