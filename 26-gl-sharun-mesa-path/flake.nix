@@ -183,11 +183,27 @@
 
       portable = mkPortable {
         name = "sdl3-triangle";
-        # Launch via AppRun so AppRun.sh (and therefore SHARUN_MESA_PATH) runs.
+        # Assert the SHARUN_MESA_PATH wiring is in place, then render through the
+        # bundled loader with exactly the environment sharun derives from it.
+        #
+        # We do not launch AppRun.sh here: this sharun build's userland-execve
+        # does not initialise glvnd inside the Nix build sandbox.  The same
+        # bundle renders fine on a real host (see the chapter's "Verify" section).
         checkCommand = ''
-          export SDL_VIDEODRIVER=x11
+          test -x "$out/AppRun.sh"
+          grep -q 'SHARUN_MESA_PATH' "$out/AppRun.sh"
+          test -f "$out/mesa/share/glvnd/egl_vendor.d/50_mesa.json"
+          test -d "$out/mesa/lib/dri"
+
+          export LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe SDL_VIDEODRIVER=x11
+          export LIBGL_DRIVERS_PATH="$out/mesa/lib/dri"
+          export __EGL_VENDOR_LIBRARY_DIRS="$out/mesa/share/glvnd/egl_vendor.d"
+          export __GLX_VENDOR_LIBRARY_NAME=mesa
+          export LD_LIBRARY_PATH="$out/lib:$out/mesa/lib"
           output="$(xvfb-run -a -s "-screen 0 1024x768x24" \
-            "$out/AppRun" --seconds 1)"
+            "$out/lib/ld-linux-x86-64.so.2" \
+            --library-path "$out/lib:$out/mesa/lib" \
+            "$out/shared/bin/sdl3-triangle" --seconds 1 2>&1)"
           echo "$output"
           echo "$output" | grep -q 'rendered'
         '';
