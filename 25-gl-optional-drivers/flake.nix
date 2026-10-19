@@ -186,6 +186,17 @@
         echo "$output" | grep -q '${check}'
       '';
 
+      # The bundled-Mesa check must set the GL env itself, because it bypasses
+      # sharun (and therefore the bundle's `.env`).
+      bundledGLEnv = ''
+        export LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe
+        export LD_LIBRARY_PATH="$out/lib"
+        export LIBGL_DRIVERS_PATH="$out/lib/dri"
+        export __GLX_VENDOR_LIBRARY_NAME=mesa
+        export __EGL_VENDOR_LIBRARY_FILENAMES="$out/lib/glvnd/egl_vendor.d/50_mesa.json"
+        export SDL_VIDEODRIVER=x11
+      '';
+
       portable = mkPortable {
         name = "sdl3-triangle";
         bundleGL = false;
@@ -197,7 +208,7 @@
       portableBundled = mkPortable {
         name = "sdl3-triangle";
         bundleGL = true;
-        checkCommand = runViaLoader { check = "rendered"; };
+        checkCommand = bundledGLEnv + runViaLoader { check = "rendered"; };
       };
 
       mkTarball = { name, appdir, suffix ? "" }:
