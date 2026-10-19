@@ -9,6 +9,11 @@
       pkgs = import nixpkgs { inherit system; };
       gnu = pkgs.gnu-efi;
 
+      # The default binutils in nixpkgs does not include the EFI/PE BFD targets,
+      # so `objcopy --target=efi-app-x86_64` is unavailable.  This variant is
+      # built with all targets (and is in the binary cache).
+      binutilsAll = pkgs.binutils-unwrapped.override { withAllTargets = true; };
+
       # =======================================================================
       # A UEFI application (.efi) for x86_64.
       # =======================================================================
@@ -39,17 +44,15 @@
           $AR rcs libmul.a mul.o
 
           # Link as a shared object against gnu-efi, then convert to PE/COFF.
-          # Use the *raw* binutils: the Nix bintools wrappers inject target
-          # flags meant for ordinary hosted builds, which confuse this
-          # freestanding gnu-efi link.
-          ${pkgs.binutils-unwrapped}/bin/ld -shared -Bsymbolic \
+          # Use the all-targets binutils: the default one has no EFI target.
+          ${binutilsAll}/bin/ld -shared -Bsymbolic \
             -T ${gnu}/lib/elf_x86_64_efi.lds \
             ${gnu}/lib/crt0-efi-x86_64.o \
             main.o libmul.a libadd.a \
             -L${gnu}/lib -lefi -lgnuefi \
             -o uefi-demo.so
 
-          ${pkgs.binutils-unwrapped}/bin/objcopy \
+          ${binutilsAll}/bin/objcopy \
             -j .text -j .sdata -j .data -j .dynamic \
             -j .dynsym -j .rel -j .rela -j .reloc \
             --target=efi-app-x86_64 \
