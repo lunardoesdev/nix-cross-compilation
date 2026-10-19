@@ -28,7 +28,8 @@
         buildPhase = ''
           runHook preBuild
 
-          CFLAGS="-I${gnu}/include/efi -fPIC -fshort-wchar -ffreestanding \
+          CFLAGS="-I${gnu}/include/efi -I${gnu}/include/efi/x86_64 \
+                  -fPIC -fshort-wchar -ffreestanding \
                   -fno-stack-protector -mno-red-zone -O2 -Wall -Wextra"
 
           $CC $CFLAGS -c main.c -o main.o
