@@ -53,9 +53,9 @@
             -o uefi-demo.so
 
           ${binutilsAll}/bin/objcopy \
+            -I elf64-x86-64 -O efi-app-x86_64 \
             -j .text -j .sdata -j .data -j .dynamic \
             -j .dynsym -j .rel -j .rela -j .reloc \
-            --target=efi-app-x86_64 \
             uefi-demo.so uefi-demo.efi
 
           runHook postBuild
